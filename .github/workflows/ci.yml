@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  generate:
+    name: Generate project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+      - name: Checkout CLI
+        uses: actions/checkout@v3
+        with:
+          repository: pivotal/acc-engine
+          ssh-key: ${{ secrets.ACC_SSH }}
+          path: acc-engine
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+      - name: Install YTT
+        run: |
+          wget -O- https://carvel.dev/install.sh > install.sh
+          sudo bash install.sh
+          ytt version
+      - name: Build CLI
+        run: |
+          cd acc-engine/cli
+          ./build.sh
+          java -jar target/cli-1.3.0-SNAPSHOT-exec.jar --help
