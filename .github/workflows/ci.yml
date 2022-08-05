@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          path: main
+          path: accelerator-ci
       - name: Checkout CLI
         uses: actions/checkout@v3
         with:
@@ -31,4 +31,29 @@ jobs:
         run: |
           cd acc-engine/cli
           ./build.sh
-          java -jar target/cli-1.3.0-SNAPSHOT-exec.jar --help
+      - name: Register Accelerator
+        run: |
+          cd acc-engine/cli
+          java -jar target/cli-1.3.0-SNAPSHOT-exec.jar register hello-spring --from-location file://$GITHUB_WORKSPACE
+      - name: Generate
+        run: |
+          cd acc-engine/cli
+          java -jar target/cli-1.3.0-SNAPSHOT-exec.jar run --values ../../accelerator-ci/accelerator-test/values.json --output generated-project hello-spring
+      - name: Upload Generated Project
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-project
+          path: acc-engine/cli/generated-project
+  test-compile:
+    name: Test Compile
+    needs: [generate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download generated project
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-project
+      - name: Compile
+        run: |
+          cd generated-project
+          ./gradlew compileJava
