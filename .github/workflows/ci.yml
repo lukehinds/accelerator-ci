@@ -55,5 +55,16 @@ jobs:
           name: generated-project
       - name: Compile
         run: |
-          cd generated-project
           ./gradlew compileJava
+  run-tests:
+    name: Run Tests
+    needs: [ generate ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download generated project
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-project
+      - name: Compile
+        run: |
+          ./gradlew test
