@@ -1,0 +1,17 @@
+accelerator:
+  displayName: Spring Hello World
+  description: A sample Spring-based application
+  iconUrl: https://images.freecreatives.com/wp-content/uploads/2015/05/smiley-559124_640.jpg
+  tags:
+    - java
+    - spring
+
+engine:
+  merge:
+    - include: [ "**" ]
+    - include: [ "settings.gradle" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: demo
+              with: "#artifactId.toLowerCase()"
