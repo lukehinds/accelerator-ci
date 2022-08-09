@@ -70,3 +70,22 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew test
+  vulnerability-scan:
+    name: Vulnerability Scan
+    needs: [ generate ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download generated project
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-project
+      - name: Get grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew build
+      - name: Scan
+        run: |
+          grype build/libs/test123-0.0.1-SNAPSHOT.jar
